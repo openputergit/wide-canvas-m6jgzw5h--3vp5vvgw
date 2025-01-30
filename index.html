@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="bg-blue-800 text-white transition-all duration-300" style="min-width: 250px;">
+            <div class="p-4 flex items-center justify-between border-b border-blue-700">
+                <h1 class="text-xl font-bold sidebar-text">Lab Management</h1>
+                <button id="toggleSidebar" class="text-white focus:outline-none">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+            </div>
+            <nav class="mt-6">
+                <a href="#dashboard" class="nav-item flex items-center p-4 hover:bg-blue-700 active">
+                    <i class="bi bi-grid-1x2-fill mr-3"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+                <a href="#patients" class="nav-item flex items-center p-4 hover:bg-blue-700">
+                    <i class="bi bi-people-fill mr-3"></i>
+                    <span class="sidebar-text">Patients</span>
+                </a>
+                <a href="#tests" class="nav-item flex items-center p-4 hover:bg-blue-700">
+                    <i class="bi bi-file-medical-fill mr-3"></i>
+                    <span class="sidebar-text">Tests</span>
+                </a>
+                <a href="#invoices" class="nav-item flex items-center p-4 hover:bg-blue-700">
+                    <i class="bi bi-receipt mr-3"></i>
+                    <span class="sidebar-text">Invoices</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-end p-4">
+                    <div class="flex items-center space-x-4">
+                        <button class="relative">
+                            <i class="bi bi-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">3</span>
+                        </button>
+                        <div class="relative">
+                            <button id="profileDropdown" class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <span>Admin</span>
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto p-6">
+                <div id="content">
+                    <!-- Dashboard Content -->
+                    <div id="dashboard-content" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">Total Patients</h3>
+                                    <i class="bi bi-people text-blue-500 text-2xl"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2">1,234</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">Tests Today</h3>
+                                    <i class="bi bi-clipboard2-pulse text-green-500 text-2xl"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2">45</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">Pending Results</h3>
+                                    <i class="bi bi-hourglass-split text-yellow-500 text-2xl"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2">12</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">Revenue</h3>
+                                    <i class="bi bi-currency-dollar text-purple-500 text-2xl"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2">$5,678</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <canvas id="testsChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Other pages content will be dynamically loaded -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+        toggleBtn.addEventListener('click', () => {
+            if (sidebar.style.minWidth === '250px') {
+                sidebar.style.minWidth = '60px';
+                sidebarTexts.forEach(text => text.style.display = 'none');
+            } else {
+                sidebar.style.minWidth = '250px';
+                sidebarTexts.forEach(text => text.style.display = 'block');
+            }
+        });
+
+        // Profile Dropdown
+        const profileBtn = document.getElementById('profileDropdown');
+        const profileMenu = document.getElementById('profileMenu');
+
+        profileBtn.addEventListener('click', () => {
+            profileMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target)) {
+                profileMenu.classList.add('hidden');
+            }
+        });
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const content = document.getElementById('content');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                const page = item.getAttribute('href').substring(1);
+                loadPage(page);
+            });
+        });
+
+        function loadPage(page) {
+            // Hide all content first
+            document.getElementById('dashboard-content').style.display = 'none';
+
+            if (page === 'dashboard') {
+                document.getElementById('dashboard-content').style.display = 'block';
+            } else {
+                content.innerHTML = `<div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold capitalize">${page}</h2>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            <i class="bi bi-plus-lg mr-2"></i>Add New
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">#001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">2023-10-15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="bi bi-pencil"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }
+        }
+
+        // Initialize Chart
+        const ctx = document.getElementById('testsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Tests Performed',
+                    data: [65, 59, 80, 81, 56, 55],
+                    borderColor: 'rgb(59, 130, 246)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Monthly Tests Performance'
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+        .active {
+            background-color: rgba(30, 64, 175, 0.9);
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                z-index: 40;
+                height: 100%;
+            }
+            
+            #sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
